@@ -56,8 +56,19 @@ module.exports.validateLoginInput = (userInput, password) => {
   };
 };
 
-module.exports.validateEditInput = (email, password, confirmPassword) => {
+module.exports.validateEditInput = (
+  username,
+  email,
+  password,
+  confirmPassword
+) => {
   const errors = {};
+
+  if (username.trim() === '') {
+    errors.username = 'Username must not be empty';
+  } else if (username.length > 16) {
+    errors.username = 'Username must not be longer than 16 characters';
+  }
 
   if (email.trim() === '') {
     errors.email = 'Email must not be empty';
