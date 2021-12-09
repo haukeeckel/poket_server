@@ -81,6 +81,7 @@ router.post('/signin', async (req, res) => {
 
     if (checkPW) {
       user.password = '***';
+      req.session.userInfo = user;
       res.status(200).json(user);
     } else {
       errors.password = 'You entered a wrong Password';
