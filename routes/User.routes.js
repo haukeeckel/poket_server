@@ -80,15 +80,18 @@ router.post('/signin', async (req, res) => {
     const checkPW = bcrypt.compareSync(password, user.password);
 
     if (checkPW) {
-      user.passwordHash = '***';
+      user.password = '***';
       res.status(200).json(user);
     } else {
       errors.password = 'You entered a wrong Password';
-      res.render('auth/signin', { errors });
+      res.status(500).json(errors);
       return;
     }
   } catch (err) {
-    next(err);
+    res.status(500).json({
+      errorMessage: 'Something went wrong! Go to sleep!',
+      message: err,
+    });
   }
 });
 
