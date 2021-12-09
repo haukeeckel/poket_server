@@ -102,9 +102,9 @@ router.post('/logout', (req, res) => {
   res.status(204).json({});
 });
 
-router.delete('/profile/:username/delete', async (req, res) => {
-  // const { _id } = req.session.keks;
-  const { _id, confirmPassword } = req.body;
+router.delete('/user/delete', async (req, res) => {
+  const { _id } = req.session.keks;
+  const { confirmPassword } = req.body;
   const errors = {};
 
   try {
