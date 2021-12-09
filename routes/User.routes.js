@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const bcrypt = require('bcryptjs');
+const loggedIn = require('../middleware/loggedIn');
 
 const User = require('../models/User.model');
 const {
@@ -19,7 +20,7 @@ router.post('/signup', async (req, res) => {
   );
 
   if (notValid) {
-    res.status(500).json(errors);
+    res.status(400).json(errors);
     return;
   }
 
@@ -48,9 +49,9 @@ router.post('/signup', async (req, res) => {
         error.message = err;
       }
 
-      res.status(500).json(error);
+      res.status(400).json(error);
     } else {
-      res.status(500).json({
+      res.status(400).json({
         errorMessage: 'oops power failure',
         message: err,
       });
@@ -64,7 +65,7 @@ router.post('/signin', async (req, res) => {
   const { notValid, errors } = validateLoginInput(userInput, password);
 
   if (notValid) {
-    res.status(500).json(errors);
+    res.status(400).json(errors);
     return;
   }
 
@@ -75,7 +76,7 @@ router.post('/signin', async (req, res) => {
 
     if (!user) {
       errors.username = 'User not found';
-      res.status(500).json(errors);
+      res.status(400).json(errors);
       return;
     }
 
@@ -88,11 +89,11 @@ router.post('/signin', async (req, res) => {
       return;
     } else {
       errors.password = 'You entered a wrong Password';
-      res.status(500).json(errors);
+      res.status(400).json(errors);
       return;
     }
   } catch (err) {
-    res.status(500).json({
+    res.status(400).json({
       errorMessage: 'oops power failure',
       message: err,
     });
@@ -104,7 +105,7 @@ router.post('/logout', (req, res) => {
   res.status(204).json({});
 });
 
-router.delete('/user/delete', async (req, res) => {
+router.delete('/user/delete', loggedIn, async (req, res) => {
   const { _id } = req.session.keks;
   const { confirmPassword } = req.body;
   const errors = {};
@@ -116,7 +117,7 @@ router.delete('/user/delete', async (req, res) => {
 
     if (!checkPW) {
       errors.password = 'You have entered an incorrect password';
-      res.status(500).json(errors);
+      res.status(400).json(errors);
       return;
     }
 
@@ -124,15 +125,14 @@ router.delete('/user/delete', async (req, res) => {
     req.session.destroy();
     res.status(204).json({});
   } catch (err) {
-    res.status(500).json({
+    res.status(400).json({
       errorMessage: 'oops power failure',
       message: err,
     });
   }
 });
 
-router.patch('/user/edit', async (req, res) => {
-  // TODO 500 - 400 Status
+router.patch('/user/edit', loggedIn, async (req, res) => {
   const { _id } = req.session.keks;
   let { username, email, newPassword, confirmNewPassword, confirmPassword } =
     req.body;
@@ -189,7 +189,7 @@ router.patch('/user/edit', async (req, res) => {
         email,
         password: hash,
       },
-      { runValidators: true }
+      { runValidators: true, new: true }
     );
     updatedUser.password = '***';
     req.session.keks = updatedUser;
