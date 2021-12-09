@@ -49,7 +49,7 @@ router.post('/signup', async (req, res) => {
       res.status(500).json(error);
     } else {
       res.status(500).json({
-        errorMessage: 'Something went wrong! Go to sleep!',
+        errorMessage: 'oops power failure',
         message: err,
       });
     }
@@ -83,6 +83,7 @@ router.post('/signin', async (req, res) => {
       user.password = '***';
       req.session.userInfo = user;
       res.status(200).json(user);
+      return;
     } else {
       errors.password = 'You entered a wrong Password';
       res.status(500).json(errors);
@@ -90,7 +91,7 @@ router.post('/signin', async (req, res) => {
     }
   } catch (err) {
     res.status(500).json({
-      errorMessage: 'Something went wrong! Go to sleep!',
+      errorMessage: 'oops power failure',
       message: err,
     });
   }
@@ -99,6 +100,32 @@ router.post('/signin', async (req, res) => {
 router.post('/logout', (req, res) => {
   req.session.destroy();
   res.status(204).json({});
+});
+
+router.delete('/profile/:username/delete', async (req, res) => {
+  // const { _id } = req.session.keks;
+  const { _id, confirmPassword } = req.body;
+  const errors = {};
+
+  try {
+    const user = await User.findById(_id);
+
+    const checkPW = bcrypt.compareSync(confirmPassword, user.password);
+
+    if (!checkPW) {
+      errors.password = 'You have entered an incorrect password';
+      res.status(500).json(errors);
+      return;
+    }
+    await User.findByIdAndDelete(_id);
+    req.session.destroy();
+    res.status(204).json({});
+  } catch (err) {
+    res.status(500).json({
+      errorMessage: 'oops power failure',
+      message: err,
+    });
+  }
 });
 
 module.exports = router;
