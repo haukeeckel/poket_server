@@ -11,6 +11,9 @@ const userSchema = new Schema(
       unique: true,
     },
     password: String,
+    bridgeUsername: String,
+    bridgeClientkey: String,
+    bridgeIP: String,
   },
   {
     timestamps: true,

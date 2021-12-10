@@ -1,8 +1,8 @@
 const router = require('express').Router();
 const bcrypt = require('bcryptjs');
-const loggedIn = require('../middleware/loggedIn');
 
 const User = require('../models/User.model');
+const loggedIn = require('../middleware/loggedIn');
 const {
   validateRegisterInput,
   validateLoginInput,
@@ -100,7 +100,7 @@ router.post('/signin', async (req, res) => {
   }
 });
 
-router.post('/logout', (req, res) => {
+router.post('/logout', loggedIn, (req, res) => {
   req.session.destroy();
   res.status(204).json({});
 });

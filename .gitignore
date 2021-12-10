@@ -3,6 +3,3 @@ node_modules
 npm-debug.log
 
 .env
-
-test.pem
-routes/Bridge.routes.js
