@@ -14,6 +14,10 @@ const userSchema = new Schema(
     bridgeUsername: String,
     bridgeClientkey: String,
     bridgeIP: String,
+    lights: {
+      type: [Schema.Types.ObjectId],
+      ref: 'Light',
+    },
   },
   {
     timestamps: true,
