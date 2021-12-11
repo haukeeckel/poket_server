@@ -9,6 +9,7 @@ const {
   validateEditInput,
 } = require('../utilities/validators');
 
+// FE ✅
 router.post('/signup', async (req, res) => {
   const { username, email, password, confirmPassword } = req.body;
 
@@ -59,8 +60,11 @@ router.post('/signup', async (req, res) => {
   }
 });
 
+// FE ✅
 router.post('/signin', async (req, res) => {
   const { userInput, password } = req.body;
+
+  console.log(req.body);
 
   const { notValid, errors } = validateLoginInput(userInput, password);
 
@@ -100,9 +104,15 @@ router.post('/signin', async (req, res) => {
   }
 });
 
+// FE ✅
 router.post('/logout', loggedIn, (req, res) => {
   req.session.destroy();
   res.status(204).json({});
+});
+
+// FE ✅
+router.get('/user/', loggedIn, (req, res) => {
+  res.status(200).json(req.session.keks);
 });
 
 router.delete('/user/delete', loggedIn, async (req, res) => {
