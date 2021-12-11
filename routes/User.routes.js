@@ -64,8 +64,6 @@ router.post('/signup', async (req, res) => {
 router.post('/signin', async (req, res) => {
   const { userInput, password } = req.body;
 
-  console.log(req.body);
-
   const { notValid, errors } = validateLoginInput(userInput, password);
 
   if (notValid) {
