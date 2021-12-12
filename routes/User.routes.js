@@ -142,14 +142,12 @@ router.delete('/user/delete', loggedIn, async (req, res) => {
 
 router.patch('/user/edit', loggedIn, async (req, res) => {
   const { _id } = req.session.keks;
-  let { username, email, newPassword, confirmNewPassword, confirmPassword } =
+  let { username, email, password, confirmPassword, currentPassword } =
     req.body;
 
   try {
     const user = await User.findById(_id);
-
-    const checkPW = bcrypt.compareSync(confirmPassword, user.password);
-
+    const checkPW = bcrypt.compareSync(currentPassword, user.password);
     if (!checkPW) {
       const errors = {};
       errors.password = 'You have entered an incorrect password';
@@ -164,22 +162,22 @@ router.patch('/user/edit', loggedIn, async (req, res) => {
     if (!email) {
       email = user.email;
     }
-    if (newPassword !== confirmNewPassword) {
+    if (password !== confirmPassword) {
       const errors = {};
       errors.newPassword = 'Your passwords does not match';
       res.status(400).json(errors);
       return;
     }
-    if (!newPassword) {
-      newPassword = confirmPassword;
-      confirmNewPassword = confirmPassword;
+    if (!password) {
+      password = currentPassword;
+      confirmPassword = currentPassword;
     }
 
     const { notValid, errors } = validateEditInput(
       username,
       email,
-      newPassword,
-      confirmNewPassword
+      password,
+      confirmPassword
     );
 
     if (notValid) {
@@ -188,7 +186,7 @@ router.patch('/user/edit', loggedIn, async (req, res) => {
     }
 
     const salt = bcrypt.genSaltSync(12);
-    const hash = bcrypt.hashSync(newPassword, salt);
+    const hash = bcrypt.hashSync(password, salt);
 
     const updatedUser = await User.findByIdAndUpdate(
       _id,
@@ -201,8 +199,7 @@ router.patch('/user/edit', loggedIn, async (req, res) => {
     );
     updatedUser.password = '***';
     req.session.keks = updatedUser;
-
-    res.status(200).json(user);
+    res.status(200).json(updatedUser);
   } catch (err) {
     let error = {};
 
@@ -220,9 +217,9 @@ router.patch('/user/edit', loggedIn, async (req, res) => {
         error.message = err;
       }
 
-      res.status(400).json(error);
+      res.status(500).json(error);
     } else {
-      res.status(400).json({
+      res.status(500).json({
         errorMessage: 'oops power failure',
         message: err,
       });

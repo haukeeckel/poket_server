@@ -38,9 +38,6 @@ app.use('/api', allRoutes);
 const user = require('./routes/User.routes');
 app.use('/api', user);
 
-const bridge = require('./routes/Bridge.routes');
-app.use('/api', bridge);
-
 require('./error-handling')(app);
 
 module.exports = app;
