@@ -11,6 +11,9 @@ const userSchema = new Schema(
       unique: true,
     },
     password: String,
+    lists: {
+      type: [{ type: Schema.Types.ObjectId, ref: 'Lists' }],
+    },
   },
   {
     timestamps: true,

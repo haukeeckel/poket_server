@@ -38,6 +38,10 @@ app.use('/api', allRoutes);
 const user = require('./routes/User.routes');
 app.use('/api', user);
 
+app.use((_, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+});
+
 require('./error-handling')(app);
 
 module.exports = app;

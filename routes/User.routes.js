@@ -2,6 +2,7 @@ const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 
 const User = require('../models/User.model');
+const List = require('../models/List.model');
 const loggedIn = require('../middleware/loggedIn');
 const {
   validateRegisterInput,
@@ -29,7 +30,20 @@ router.post('/signup', async (req, res) => {
   const hash = bcrypt.hashSync(password, salt);
 
   try {
-    const user = await User.create({ username, email, password: hash });
+    let user = await User.create({
+      username,
+      email,
+      password: hash,
+    });
+
+    let list = await List.create({ title: 'owend', user: user._id });
+
+    user = await User.findByIdAndUpdate(
+      user._id,
+      { $push: { lists: list._id } },
+      { new: true }
+    );
+
     user.password = '***';
     req.session.keks = user;
     res.status(200).json(user);
@@ -52,6 +66,7 @@ router.post('/signup', async (req, res) => {
 
       res.status(400).json(error);
     } else {
+      console.log(err);
       res.status(400).json({
         errorMessage: 'oops power failure',
         message: err,
@@ -140,6 +155,7 @@ router.delete('/user/delete', loggedIn, async (req, res) => {
   }
 });
 
+// FE ✅
 router.patch('/user/edit', loggedIn, async (req, res) => {
   const { _id } = req.session.keks;
   let { username, email, password, confirmPassword, currentPassword } =
@@ -150,8 +166,8 @@ router.patch('/user/edit', loggedIn, async (req, res) => {
     const checkPW = bcrypt.compareSync(currentPassword, user.password);
     if (!checkPW) {
       const errors = {};
-      errors.password = 'You have entered an incorrect password';
-      res.status(400).json(errors.password);
+      errors.currentPassword = 'You have entered an incorrect password';
+      res.status(400).json(errors);
       return;
     }
 
