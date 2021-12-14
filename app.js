@@ -26,7 +26,7 @@ app.use(
       maxAge: 1000 * 24 * 60 * 60,
     },
     store: MongoStore.create({
-      mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost/huehu',
+      mongoUrl: process.env.MONGODB_URI,
       ttl: 24 * 60 * 60,
     }),
   })
@@ -40,6 +40,9 @@ app.use('/api', allRoutes);
 
 const user = require('./routes/User.routes');
 app.use('/api', user);
+
+const card = require('./routes/Card.routes');
+app.use('/api', card);
 
 app.use((_, res) => {
   res.sendFile(__dirname + '/public/index.html');
