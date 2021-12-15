@@ -62,19 +62,6 @@ router.post('/card/add/', loggedIn, async (req, res) => {
       { new: true }
     );
 
-    user = await User.findOneAndUpdate(
-      _id,
-      {
-        $push: {
-          lastAdded: {
-            $each: [card._id],
-            $slice: -3,
-          },
-        },
-      },
-      { new: true }
-    );
-
     let response = {
       success: true,
       card: card.name,
@@ -118,7 +105,7 @@ router.post('/collection/stats/', loggedIn, async (req, res) => {
     let stats = {
       lists: cardLists.length,
       energy: 0,
-      tranier: 0,
+      trainer: 0,
       pokemon: 0,
     };
 
@@ -129,7 +116,7 @@ router.post('/collection/stats/', loggedIn, async (req, res) => {
             stats.energy++;
             break;
           case 'Trainer':
-            stats.tranier++;
+            stats.trainer++;
             break;
           case 'Pokémon':
             stats.pokemon++;
@@ -138,7 +125,7 @@ router.post('/collection/stats/', loggedIn, async (req, res) => {
       })
     );
 
-    res.status(200).json(cardLists);
+    res.status(200).json(stats);
   } catch (err) {
     res.status(400).json({
       errorMessage: 'oops power failure',
