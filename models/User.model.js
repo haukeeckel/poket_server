@@ -14,6 +14,7 @@ const userSchema = new Schema(
     lists: {
       type: [{ type: Schema.Types.ObjectId, ref: 'Lists' }],
     },
+    lastAdded: [{ type: Schema.Types.ObjectId, ref: 'Card' }],
   },
   {
     timestamps: true,

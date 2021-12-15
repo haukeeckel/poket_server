@@ -36,7 +36,7 @@ router.post('/signup', async (req, res) => {
       password: hash,
     });
 
-    let list = await List.create({ title: 'owend', user: user._id });
+    let list = await List.create({ title: 'owned', user: user._id });
 
     user = await User.findByIdAndUpdate(
       user._id,
@@ -66,7 +66,6 @@ router.post('/signup', async (req, res) => {
 
       res.status(400).json(error);
     } else {
-      console.log(err);
       res.status(400).json({
         errorMessage: 'oops power failure',
         message: err,
