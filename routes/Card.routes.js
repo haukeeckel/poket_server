@@ -24,6 +24,7 @@ router.post('/card/add/', loggedIn, async (req, res) => {
 
   try {
     let card = await Card.findOne({ id });
+    let user = await User.findById(_id);
 
     if (!card) {
       card = await Card.create({
@@ -46,6 +47,7 @@ router.post('/card/add/', loggedIn, async (req, res) => {
           card: card.name,
           list: list.title,
           image: card.images.small,
+          user,
         };
         res.status(200).json(response);
         return;
@@ -60,7 +62,7 @@ router.post('/card/add/', loggedIn, async (req, res) => {
       { new: true }
     );
 
-    let user = await User.findOneAndUpdate(
+    user = await User.findOneAndUpdate(
       _id,
       {
         $push: {
