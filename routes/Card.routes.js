@@ -167,4 +167,32 @@ router.patch('/lists/card/remove', loggedIn, async (req, res) => {
   }
 });
 
+router.post('/list/remove', loggedIn, async (req, res) => {
+  const { listId } = req.body;
+  const { _id } = req.session.keks;
+
+  try {
+    const list = await List.findByIdAndDelete(listId);
+    const user = await User.findByIdAndUpdate(
+      _id,
+      { $pull: { lists: listId } },
+      { new: true }
+    );
+
+    let response = {
+      success: true,
+      messageTitle: 'Successfully deleted!',
+      message: `${list.name} is removed from your Profile.`,
+      user,
+    };
+
+    res.status(200).json(response);
+  } catch (err) {
+    res.status(400).json({
+      errorMessage: 'oops power failure',
+      message: err,
+    });
+  }
+});
+
 module.exports = router;
