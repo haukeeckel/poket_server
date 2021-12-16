@@ -5,48 +5,42 @@ const List = require('../models/List.model');
 const User = require('../models/User.model');
 
 const loggedIn = require('../middleware/loggedIn');
+const { findById } = require('../models/User.model');
 
 // FE ✅
 router.post('/card/add/', loggedIn, async (req, res) => {
   const { lists, _id } = req.session.keks;
-  const {
-    id,
-    name,
-    supertype,
-    types,
-    set,
-    number,
-    artist,
-    rarity,
-    flavorText,
-    images,
-  } = req.body;
+  const { saveToList, saveCard } = req.body;
 
   try {
-    let card = await Card.findOne({ id });
+    let card = await Card.findOne({ id: saveCard.id });
     let user = await User.findById(_id);
 
     if (!card) {
       card = await Card.create({
-        id,
-        name,
-        supertype,
-        types,
-        set,
-        number,
-        artist,
-        rarity,
-        flavorText,
-        images,
+        id: saveCard.id,
+        name: saveCard.name,
+        supertype: saveCard.supertype,
+        types: saveCard.types,
+        set: saveCard.set,
+        number: saveCard.number,
+        artist: saveCard.artist,
+        rarity: saveCard.rarity,
+        flavorText: saveCard.flavorText,
+        images: saveCard.images,
       });
     } else {
-      let list = await List.findOne({ user: _id, cards: card });
+      let list = await List.findOne({
+        title: saveToList,
+        user: _id,
+        cards: card,
+      });
       if (list) {
         let response = {
           success: false,
-          card: card.name,
-          list: list.title,
           image: card.images.small,
+          messageTitle: 'Already saved!',
+          message: `List ${list.title} already includes ${card.name}.`,
           user,
         };
         res.status(200).json(response);
@@ -54,22 +48,41 @@ router.post('/card/add/', loggedIn, async (req, res) => {
       }
     }
 
-    let list = await List.findByIdAndUpdate(
-      lists[0],
+    let list = await List.findOneAndUpdate(
       {
+        title: saveToList,
+        user: _id,
+      },
+      {
+        title: saveToList,
+        user: _id,
+        isPublic: true,
         $push: { cards: card._id },
       },
-      { new: true }
+      { new: true, upsert: true }
     );
+
+    if (!lists.includes(list._id)) {
+      user = await User.findByIdAndUpdate(
+        _id,
+        {
+          $push: { lists: list },
+        },
+        {
+          new: true,
+        }
+      );
+    }
 
     let response = {
       success: true,
-      card: card.name,
-      list: list.title,
       image: card.images.small,
+      messageTitle: 'Successfully saved!',
+      message: `${card.name} added to list ${list.title}.`,
       user,
     };
 
+    req.session.keks = user;
     res.status(200).json(response);
   } catch (err) {
     res.status(400).json({

@@ -36,13 +36,13 @@ router.post('/signup', async (req, res) => {
       password: hash,
     });
 
-    let list = await List.create({ title: 'owned', user: user._id });
+    let list = await List.create({ title: 'Owned', user: user._id });
 
     user = await User.findByIdAndUpdate(
       user._id,
       { $push: { lists: list._id } },
       { new: true }
-    ).populate('lastAdded');
+    );
 
     user.password = '***';
     req.session.keks = user;
@@ -88,7 +88,7 @@ router.post('/signin', async (req, res) => {
   try {
     const user = await User.findOne({
       $or: [{ username: userInput }, { email: userInput }],
-    }).populate('lastAdded');
+    });
 
     if (!user) {
       errors.username = 'User not found';
@@ -211,7 +211,8 @@ router.patch('/user/edit', loggedIn, async (req, res) => {
         password: hash,
       },
       { runValidators: true, new: true }
-    ).populate('lastAdded');
+    );
+
     updatedUser.password = '***';
     req.session.keks = updatedUser;
     res.status(200).json(updatedUser);
